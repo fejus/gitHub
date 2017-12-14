@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd" >
+	<context:component-scan base-package="com.third.service"/>
+	<bean class ="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="locations">
+		    <list>
+		  		<value>classpath:spring/druid.properties</value>
+		    </list>
+	    </property>
+    </bean>
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+		<!-- 数据库基本信息配置 -->
+		<property name="url" value="${url}"/>    
+        <property name="username" value="${username}"/>    
+        <property name="password" value="${password}"/>    
+        <property name="driverClassName" value="${driverClassName}"/>    
+        <!-- <property name="filters" value="${filters}"/> -->
+      	<property name="filters" value="config" />
+		<property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${publicKey}"/>   
+        <!-- 最大并发连接数 -->  
+        <property name="maxActive" value="${maxActive}"/>  
+        <!-- 初始化连接数量 -->  
+        <property name="initialSize" value="${initialSize}"/>  
+        <!-- 配置获取连接等待超时的时间 -->  
+        <property name="maxWait" value="${maxWait}"/>  
+        <!-- 最小空闲连接数 -->  
+        <property name="minIdle" value="${minIdle}"/>    
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->  
+        <property name="timeBetweenEvictionRunsMillis" value ="${timeBetweenEvictionRunsMillis}"/>  
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->  
+        <property name="minEvictableIdleTimeMillis" value ="${minEvictableIdleTimeMillis}"/>    
+        <property name="validationQuery" value="${validationQuery}"/>    
+        <property name="testWhileIdle" value="${testWhileIdle}"/>    
+        <property name="testOnBorrow" value="${testOnBorrow}"/>    
+        <property name="testOnReturn" value="${testOnReturn}"/>    
+        <property name="maxOpenPreparedStatements" value ="${maxOpenPreparedStatements}"/>  
+        <!-- 打开 removeAbandoned 功能 -->  
+        <property name="removeAbandoned" value="${removeAbandoned}"/>  
+        <!-- 1800 秒，也就是 30 分钟 -->  
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>  
+        <!-- 关闭 abanded 连接时输出错误日志 -->     
+        <property name="logAbandoned" value="${logAbandoned}"/>  
+	</bean>
+	<!-- <bean id="dataSource" class="org.apache.ibatis.datasource.pooled.PooledDataSource">
+		<property name="driver" value="oracle.jdbc.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@localhost:1521:XE"/>
+		<property name="username" value="jus"/>
+		<property name="password" value="306014"/>
+	</bean> -->
+	<!-- sqlSessionFactory配置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mapperLocations" value="classpath:com/third/dao/*Mapper.xml"/>
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.third.dao"/>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+	<!-- 管理者 -->
+	<!-- 事物  -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	<!-- 管理方法 -->
+	<tx:advice id="myAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!--add/d../e..开头的方法加上事务管理 开启事务管理 发生异常时回滚 -->
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+			<tx:method name="delete*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+			<tx:method name="edit*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- 被管理者 -->
+	<aop:config>
+		<!-- *：任意返回值||com.maven.service：包名|| ..：该包下的任意子包、任意类 ||*：任意方法||..：任意参数  -->
+		<aop:pointcut expression="execution(* com.third.service..*(..))" id="myCut"/>
+		<!-- 事务  -->
+		<aop:advisor advice-ref="myAdvice" pointcut-ref="myCut"/>
+	</aop:config>
+</beans>

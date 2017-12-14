@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+	<context id="mysql" targetRuntime="MyBatis3">
+		<commentGenerator>
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<jdbcConnection 
+			driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://10.10.8.6:3306/esco?useSSL=false" 
+			userId="mypro"
+			password="456412"/>
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<javaModelGenerator targetPackage="com.project.entity" targetProject="D:\Program Files\workplace\project\src\main\java">
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+
+		<sqlMapGenerator targetPackage="com.project.dao" targetProject="D:\Program Files\workplace\project\src\main\java">
+			<property name="enableSubPackages" value="true" />
+		</sqlMapGenerator>
+
+		<javaClientGenerator type="XMLMAPPER" targetPackage="com.project.dao" targetProject="D:\Program Files\workplace\project\src\main\java">
+			<property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+		<!-- <table tableName="admin" domainObjectName="Admin">
+			<property name="useActualColumnNames" value="false" />
+			<generatedKey column="adminid" sqlStatement="MySql" identity="true"/>
+		</table>
+		<table tableName="role" domainObjectName="Role">
+			<property name="useActualColumnNames" value="false" />
+			<generatedKey column="roleid" sqlStatement="MySql" identity="true"/>
+		</table> -->
+		<table tableName="project_acceptance" domainObjectName="ProjectAcceptance">
+			<property name="useActualColumnNames" value="false"/>
+			<generatedKey column="acceptance_id" sqlStatement="MySql" identity="true"/>
+		</table>
+		<!-- <table tableName="role-permission" domainObjectName="TableRP">
+			<property name="useActualColumnNames" value="false" />
+			<generatedKey column="rpid" sqlStatement="MySql" identity="true"/>
+		</table> -->
+	</context>
+</generatorConfiguration>
